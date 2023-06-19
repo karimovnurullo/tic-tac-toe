@@ -5,7 +5,7 @@ class Move extends Component {
     const { id, value, moveHistory } = this.props;
     return (
       <button className="py-[2px] px-[10px] bg-slate-200 text-black" onClick={() => moveHistory(id, value)}>
-        Go to move {id}
+        Go to move {id + 1}
       </button>
     );
   }

@@ -61,7 +61,7 @@ export default class App extends React.Component {
     if (cellIndex !== -1 && updatedCells[cellIndex].value === "") {
       updatedCells[cellIndex].value = turn;
       updatedCells[cellIndex].disable = true;
-      const move = { cells: updatedCells.map((cell) => ({ ...cell })), turn };
+      const move = { cells: updatedCells.map((cell) => ({ ...cell })) };
       updatedHistory.push(move);
 
       this.checkForWinner(updatedCells);
@@ -82,6 +82,7 @@ export default class App extends React.Component {
       cells: cells.map((cell) => ({ ...cell })),
       turn,
     });
+    console.log("history", history);
   };
 
   handleRestart = () => {
@@ -110,16 +111,16 @@ export default class App extends React.Component {
             ))}
           </div>
         </div>
-        {winner && (
+        <div>
           <div>
-            <p className="text-[40px] text-white">
-              <span className="text-green-500 text-[50px]">{winner}</span> is the winner!
-            </p>
-            <button onClick={this.handleRestart} className="py-[10px] px-[30px] bg-white text-black">
-              Play Again
-            </button>
+            <div className={`${winner ? "flex" : "hidden"} items-center text-[40px] text-white`}>
+              <span className="text-green-500 text-[50px] mr-4">{winner}</span> is the winner!
+            </div>
           </div>
-        )}
+          <button onClick={this.handleRestart} className="py-[10px] px-[30px] bg-white text-black mr-auto">
+            Restart
+          </button>
+        </div>
       </div>
     );
   }
