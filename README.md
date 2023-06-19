@@ -1,4 +1,4 @@
-## React Template with tailwindcss, scss and modern fonts
+## Tic Tac Toe game with React, tailwindcss, scss
 
 
 ## ( Portfolio )  https://www.nurullokarimov.uz
