@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { styles } from "./assets";
-import { Cell } from "./components";
+import { Cell, Move } from "./components";
+
 export default class App extends React.Component {
   state = {
     turn: "x",
@@ -16,6 +17,7 @@ export default class App extends React.Component {
       { id: "7", value: "", disable: false },
       { id: "8", value: "", disable: false },
     ],
+    history: [],
   };
 
   checkForWinner = (squares) => {
@@ -30,7 +32,7 @@ export default class App extends React.Component {
         [1, 4, 7],
         [2, 5, 8],
       ],
-      diagnol: [
+      diagonal: [
         [0, 4, 8],
         [2, 4, 6],
       ],
@@ -38,8 +40,8 @@ export default class App extends React.Component {
 
     for (let combo in combos) {
       combos[combo].forEach((pattern) => {
-        if (squares[pattern[0]].value === "" || squares[pattern[1]].value === "" || squares[pattern[2]].value === "") {
-        } else if (
+        if (
+          squares[pattern[0]].value !== "" &&
           squares[pattern[0]].value === squares[pattern[1]].value &&
           squares[pattern[1]].value === squares[pattern[2]].value
         ) {
@@ -50,57 +52,72 @@ export default class App extends React.Component {
   };
 
   handleCellClick = (id) => {
-    const { turn, cells } = this.state;
+    const { turn, cells, history } = this.state;
     const updatedCells = [...cells];
+    const updatedHistory = [...history];
+
     const cellIndex = updatedCells.findIndex((cell) => cell.id === id);
 
     if (cellIndex !== -1 && updatedCells[cellIndex].value === "") {
       updatedCells[cellIndex].value = turn;
       updatedCells[cellIndex].disable = true;
+      const move = { cells: updatedCells.map((cell) => ({ ...cell })), turn };
+      updatedHistory.push(move);
 
       this.checkForWinner(updatedCells);
-      this.setState((prevState) => ({
-        turn: prevState.turn === "x" ? "0" : "x",
+      this.setState({
+        turn: turn === "x" ? "o" : "x",
         cells: updatedCells,
-      }));
+        history: updatedHistory,
+      });
     }
   };
-  handleRestart = () => {
-    this.setState(({ cells }) => ({
-      winner: null,
-      cells: cells.map((cell) => ({ ...cell, value: "", disable: false })),
-    }));
+
+  moveHistory = (moveIndex) => {
+    const { history } = this.state;
+    const move = history[moveIndex];
+    const { cells, turn } = move;
+
+    this.setState({
+      cells: cells.map((cell) => ({ ...cell })),
+      turn,
+    });
   };
 
-  // hundelClick = (e, num) => {
-  //   const { turn, cells } = this.state;
-  //   let newCells = [...cells];
-  //   if (turn === "X") {
-  //     newCells[num].value = "X";
-  //     newCells[num].disable = true;
-  //     this.setState({ turn: "0" });
-  //   } else {
-  //     newCells[num].value = "0";
-  //     newCells[num].disable = true;
-  //     this.setState({ turn: "X" });
-  //   }
-  //   this.setState({ cells: newCells });
-  //   console.log(newCells);
-  // };
+  handleRestart = () => {
+    this.setState({
+      turn: "x",
+      winner: "",
+      cells: this.state.cells.map((cell) => ({ ...cell, value: "", disable: false })),
+      history: [],
+    });
+  };
+
   render() {
-    const { cells, winner } = this.state;
+    const { cells, winner, history } = this.state;
     return (
-      <div className={`${styles.center} w-full h-[100vh] overflow-auto flex-col  select-none`}>
-        <h1 className=" text-white font-pally md:text-[100px] sm:text-[70px] text-[50px]">Tic Tac Toe</h1>
-        <div className="game-board w-auto h-auto border grid grid-cols-3 gap-[1px] bg-white ">
-          {cells.map(({ id, value, disable }, idx) => (
-            <Cell num={id} value={value} disable={disable} click={this.handleCellClick} key={idx} />
-          ))}
+      <div className={`${styles.center} w-full h-[100vh] overflow-auto flex-col select-none`}>
+        <h1 className="text-white font-pally md:text-[100px] sm:text-[70px] text-[50px]">Tic Tac Toe</h1>
+        <div className="flex gap-[30px] h-fit">
+          <div className="game-board w-auto h-auto border grid grid-cols-3 gap-[1px] bg-white mt-[50px]">
+            {cells.map(({ id, value, disable }, idx) => (
+              <Cell num={id} value={value} disable={disable} click={this.handleCellClick} key={idx} />
+            ))}
+          </div>
+          <div className="history w-[200px]">
+            {history.map((move, index) => (
+              <Move key={index} id={index} value={move.turn} moveHistory={this.moveHistory} />
+            ))}
+          </div>
         </div>
         {winner && (
           <div>
-            <p className="text-[50px] text-red-900">{winner} is the winner!</p>
-            <button onClick={() => this.handleRestart()}>Play Again</button>
+            <p className="text-[40px] text-white">
+              <span className="text-green-500 text-[50px]">{winner}</span> is the winner!
+            </p>
+            <button onClick={this.handleRestart} className="py-[10px] px-[30px] bg-white text-black">
+              Play Again
+            </button>
           </div>
         )}
       </div>
